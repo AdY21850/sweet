@@ -16,31 +16,22 @@ public class HeroSectionService {
         this.heroRepository = heroRepository;
     }
 
-    // ✅ PUBLIC — Get active hero banner (Home slider)
-    public HeroSection getActiveHero() {
-        return heroRepository.findByActiveTrue()
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("No active hero banner found")
-                );
+    // ✅ PUBLIC — Get ALL active heroes
+    public List<HeroSection> getActiveHeroes() {
+        return heroRepository.findByActiveTrue();
     }
 
-    // ✅ ADMIN — Get all hero banners
+    // ✅ ADMIN — Get all heroes
     public List<HeroSection> getAllHeroes() {
         return heroRepository.findAll();
     }
 
-    // ✅ ADMIN — Add new hero banner
+    // ✅ ADMIN — Add hero (NO auto-deactivate)
     public HeroSection addHero(HeroSection hero) {
-
-        // If new hero is active, disable others
-        if (hero.isActive()) {
-            deactivateAllHeroes();
-        }
-
         return heroRepository.save(hero);
     }
 
-    // ✅ ADMIN — Update hero banner
+    // ✅ ADMIN — Update hero
     public HeroSection updateHero(Long id, HeroSection updatedHero) {
 
         HeroSection hero = heroRepository.findById(id)
@@ -53,30 +44,14 @@ public class HeroSectionService {
         hero.setImageUrl(updatedHero.getImageUrl());
         hero.setActive(updatedHero.isActive());
 
-        // If setting active, disable others
-        if (updatedHero.isActive()) {
-            deactivateAllHeroes();
-        }
-
         return heroRepository.save(hero);
     }
 
-    // ✅ ADMIN — Delete hero banner
+    // ✅ ADMIN — Delete hero
     public void deleteHero(Long id) {
         if (!heroRepository.existsById(id)) {
             throw new ResourceNotFoundException("Hero banner not found with id " + id);
         }
-
         heroRepository.deleteById(id);
-    }
-
-    // ==========================
-    // INTERNAL HELPER
-    // ==========================
-    private void deactivateAllHeroes() {
-        heroRepository.findAll().forEach(hero -> {
-            hero.setActive(false);
-            heroRepository.save(hero);
-        });
     }
 }

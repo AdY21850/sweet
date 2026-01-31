@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
+
 @RestController
 @RequestMapping("/api/hero")
 public class HeroSectionController {
@@ -17,7 +20,7 @@ public class HeroSectionController {
     }
 
     @GetMapping("/active")
-    public HeroSection getHero() {
-        return service.getActiveHero();
+    public List<HeroSection> getActiveHeroes() {
+        return service.getActiveHeroes();
     }
 }
