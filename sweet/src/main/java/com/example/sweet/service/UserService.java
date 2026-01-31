@@ -5,14 +5,15 @@ import com.example.sweet.model.Role;
 import com.example.sweet.model.User;
 import com.example.sweet.repository.UserRepository;
 
-import org.json.JSONObject;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.Collections;
 
 @Service
 public class UserService {
@@ -69,51 +70,31 @@ public class UserService {
     }
 
     // ==========================
-    // ✅ GOOGLE LOGIN / REGISTER ENGINE (HARD-CODED + SAFE)
+    // ✅ GOOGLE LOGIN / REGISTER ENGINE (OFFICIAL + STABLE)
     // ==========================
     public User loginWithGoogle(String googleToken, boolean forceRegister) {
-
-        HttpURLConnection conn = null;
 
         try {
             System.out.println("VERIFYING GOOGLE TOKEN WITH CLIENT ID = " + GOOGLE_WEB_CLIENT_ID);
 
-            // 🔹 Call Google TokenInfo API
-            String url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + googleToken;
+            GoogleIdTokenVerifier verifier =
+                    new GoogleIdTokenVerifier.Builder(
+                            GoogleNetHttpTransport.newTrustedTransport(),
+                            GsonFactory.getDefaultInstance()
+                    )
+                            .setAudience(Collections.singletonList(GOOGLE_WEB_CLIENT_ID))
+                            .build();
 
-            conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setRequestMethod("GET");
+            GoogleIdToken idToken = verifier.verify(googleToken);
 
-            // 🔥 CRITICAL: timeouts to avoid backend hangs
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
-
-            if (conn.getResponseCode() != 200) {
+            if (idToken == null) {
                 throw new IllegalArgumentException("Invalid Google token");
             }
 
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream())
-            );
+            GoogleIdToken.Payload payload = idToken.getPayload();
 
-            StringBuilder response = new StringBuilder();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-
-            JSONObject payload = new JSONObject(response.toString());
-
-            // 🔹 Validate Audience
-            String audience = payload.optString("aud", "");
-            if (!GOOGLE_WEB_CLIENT_ID.equals(audience)) {
-                throw new IllegalArgumentException("Google token audience mismatch");
-            }
-
-            // 🔹 Extract Data
-            String email = payload.optString("email", null);
-            String name = payload.optString("name", "Google User");
+            String email = payload.getEmail();
+            String name = (String) payload.get("name");
 
             if (email == null) {
                 throw new IllegalArgumentException("Google token missing email");
@@ -149,10 +130,6 @@ public class UserService {
 
         } catch (Exception e) {
             throw new IllegalArgumentException("Google authentication failed: " + e.getMessage());
-        } finally {
-            if (conn != null) {
-                conn.disconnect(); // ✅ prevent connection leaks
-            }
         }
     }
 }
