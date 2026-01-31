@@ -1,5 +1,6 @@
 package com.example.sweet.controller;
 
+import com.example.sweet.dto.GoogleTokenRequest;
 import com.example.sweet.dto.LoginRequest;
 import com.example.sweet.dto.LoginResponse;
 import com.example.sweet.dto.RegisterRequest;
@@ -85,10 +86,11 @@ public class AuthController {
     // ==========================
     // ✅ GOOGLE LOGIN
     // ==========================
+
     @PostMapping("/google-login")
-    public ResponseEntity<LoginResponse> googleLogin(@RequestBody String token) {
+    public ResponseEntity<LoginResponse> googleLogin(@RequestBody GoogleTokenRequest request) {
         try {
-            User user = userService.loginWithGoogle(token, false);
+            User user = userService.loginWithGoogle(request.getToken(), false);
             String jwt = jwtUtil.generateToken(user);
 
             return ResponseEntity.ok(
@@ -106,10 +108,11 @@ public class AuthController {
     // ==========================
     // ✅ GOOGLE REGISTER
     // ==========================
+
     @PostMapping("/google-register")
-    public ResponseEntity<LoginResponse> googleRegister(@RequestBody String token) {
+    public ResponseEntity<LoginResponse> googleRegister(@RequestBody GoogleTokenRequest request) {
         try {
-            User user = userService.loginWithGoogle(token, true);
+            User user = userService.loginWithGoogle(request.getToken(), true);
             String jwt = jwtUtil.generateToken(user);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(
