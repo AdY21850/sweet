@@ -50,6 +50,8 @@ public class SecurityConfig {
                 // =====================
                 .authorizeHttpRequests(auth -> auth
 
+                        .requestMatchers("/api/sweets/popular").permitAll()
+
                         // 🔥 CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
