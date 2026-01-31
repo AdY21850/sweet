@@ -6,7 +6,6 @@ import com.example.sweet.model.User;
 import com.example.sweet.repository.UserRepository;
 
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +20,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${google.client.id}")
-    private String googleClientId;
+    // 🔴 TEMP: HARD-CODED GOOGLE WEB CLIENT ID (FOR DEBUGGING)
+    private static final String GOOGLE_WEB_CLIENT_ID =
+            "478331272752-q7kqaidvmamv9llv1e796708mpa4f485.apps.googleusercontent.com";
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder) {
@@ -69,16 +69,24 @@ public class UserService {
     }
 
     // ==========================
-    // ✅ GOOGLE LOGIN / REGISTER ENGINE (FINAL WORKING VERSION)
+    // ✅ GOOGLE LOGIN / REGISTER ENGINE (HARD-CODED + SAFE)
     // ==========================
     public User loginWithGoogle(String googleToken, boolean forceRegister) {
 
+        HttpURLConnection conn = null;
+
         try {
+            System.out.println("VERIFYING GOOGLE TOKEN WITH CLIENT ID = " + GOOGLE_WEB_CLIENT_ID);
+
             // 🔹 Call Google TokenInfo API
             String url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + googleToken;
 
-            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestMethod("GET");
+
+            // 🔥 CRITICAL: timeouts to avoid backend hangs
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
 
             if (conn.getResponseCode() != 200) {
                 throw new IllegalArgumentException("Invalid Google token");
@@ -99,7 +107,7 @@ public class UserService {
 
             // 🔹 Validate Audience
             String audience = payload.optString("aud", "");
-            if (!audience.equals(googleClientId)) {
+            if (!GOOGLE_WEB_CLIENT_ID.equals(audience)) {
                 throw new IllegalArgumentException("Google token audience mismatch");
             }
 
@@ -141,6 +149,10 @@ public class UserService {
 
         } catch (Exception e) {
             throw new IllegalArgumentException("Google authentication failed: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                conn.disconnect(); // ✅ prevent connection leaks
+            }
         }
     }
 }
