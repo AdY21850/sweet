@@ -53,19 +53,30 @@ public class SecurityConfig {
                         // 🔥 CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 🔓 PUBLIC AUTH ROUTES
+                        // 🔓 PUBLIC AUTH ROUTES (GOOGLE + LOGIN)
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // 🔓 PUBLIC HERO + CATEGORIES (ANDROID + REACT)
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/hero/**",
+                                "/api/categories/**"
+                        ).permitAll()
 
                         // 🔓 PUBLIC SWEETS FETCH
                         .requestMatchers(HttpMethod.GET, "/api/sweets/**").permitAll()
 
-                        // 🔒 ADMIN ONLY ROUTES (SAFE ADDITION)
+                        // 🔒 PROFILE (JWT REQUIRED)
+                        .requestMatchers("/api/profile/**")
+                        .hasAnyRole("USER", "ADMIN")
+
+                        // 🔒 ADMIN ONLY
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // 🔒 USER + ADMIN ROUTES
-                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/user/**")
+                        .hasAnyRole("USER", "ADMIN")
 
-                        // 🔒 EVERYTHING ELSE REQUIRES AUTH
+                        // 🔒 EVERYTHING ELSE
                         .anyRequest().authenticated()
                 )
 
@@ -91,7 +102,7 @@ public class SecurityConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // 🔥 Allow production + preview + local dev
+        // 🔥 React + Android safe origins
         config.setAllowedOriginPatterns(List.of(
                 "https://sweet-shop-manager-rho.vercel.app",
                 "https://*.vercel.app",
