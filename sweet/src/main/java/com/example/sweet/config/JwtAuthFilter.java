@@ -23,6 +23,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
     }
 
+    // ==========================
+    // ✅ SKIP JWT FOR PUBLIC APIs
+    // ==========================
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
 
@@ -30,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String method = request.getMethod();
 
         // 🔥 Allow CORS preflight
-        if ("OPTIONS".equals(method)) {
+        if ("OPTIONS".equalsIgnoreCase(method)) {
             return true;
         }
 
@@ -39,10 +42,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return true;
         }
 
-        // 🔓 Public sweets GET
-        return "GET".equals(method) && path.startsWith("/api/sweets");
+        // 🔓 Public GET APIs (React + Android)
+        if ("GET".equalsIgnoreCase(method) &&
+                (path.startsWith("/api/hero")
+                        || path.startsWith("/api/categories")
+                        || path.startsWith("/api/sweets"))) {
+            return true;
+        }
+
+        return false;
     }
 
+    // ==========================
+    // ✅ JWT VALIDATION
+    // ==========================
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -53,10 +66,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
+
             String token = authHeader.substring(7);
 
             try {
-                // ✅ Validate token before parsing
                 if (!jwtUtil.isTokenValid(token)) {
                     filterChain.doFilter(request, response);
                     return;
@@ -65,10 +78,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 String email = jwtUtil.extractEmail(token);
                 String role = jwtUtil.extractRole(token);
 
-                // ✅ Normalize role (avoid ROLE_ROLE_ADMIN bugs)
-                String normalizedRole = role.startsWith("ROLE_")
-                        ? role
-                        : "ROLE_" + role;
+                String normalizedRole =
+                        role.startsWith("ROLE_") ? role : "ROLE_" + role;
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -78,13 +89,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         );
 
                 authentication.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
+                        new WebAuthenticationDetailsSource()
+                                .buildDetails(request)
                 );
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authentication);
 
             } catch (Exception ignored) {
-                // Token invalid → leave context empty (Spring will block request)
+                // Leave context empty → Spring Security will block protected routes
             }
         }
 
