@@ -1,30 +1,46 @@
 package com.example.sweet.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "sweet")
 public class Sweet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
-    // ✅ REQUIRED BY SweetService
-    private String category;
-
+    @Column(nullable = false)
     private double price;
 
-    private int quantity;
-
+    @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @Column(nullable = false)
+    private boolean active = true;
+
+    // ===== GETTERS =====
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
 }
