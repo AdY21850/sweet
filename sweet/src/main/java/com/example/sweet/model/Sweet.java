@@ -13,8 +13,15 @@ public class Sweet {
     @Column(nullable = false)
     private String name;
 
+    private String category;
+
     @Column(nullable = false)
     private double price;
+
+    private int quantity;
+
+    @Column(length = 1000)
+    private String description;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -22,7 +29,7 @@ public class Sweet {
     @Column(nullable = false)
     private boolean active = true;
 
-    // ===== GETTERS =====
+    // ========= GETTERS =========
 
     public Long getId() {
         return id;
@@ -32,8 +39,20 @@ public class Sweet {
         return name;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
     public double getPrice() {
         return price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public String getImageUrl() {
@@ -42,5 +61,35 @@ public class Sweet {
 
     public boolean isActive() {
         return active;
+    }
+
+    // ========= SETTERS =========
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
