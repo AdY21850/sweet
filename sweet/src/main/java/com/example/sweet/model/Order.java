@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "orders") // ✅ FIX: avoid reserved keyword
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,13 +20,20 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "order",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<OrderItem> items = new ArrayList<>();
 
+    @Column(nullable = false)
     private BigDecimal totalPrice;
 
+    @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }
