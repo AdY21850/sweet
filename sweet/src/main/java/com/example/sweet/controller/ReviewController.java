@@ -1,5 +1,6 @@
 package com.example.sweet.controller;
 
+import com.example.sweet.dto.ReviewResponse;
 import com.example.sweet.model.Review;
 import com.example.sweet.service.ReviewService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,15 +30,22 @@ public class ReviewController {
             @RequestParam int rating,
             @RequestParam(required = false) String comment
     ) {
+
         String email = authentication.getName();
-        return reviewService.addOrUpdateReview(email, sweetId, rating, comment);
+        return reviewService.addOrUpdateReview(
+                email,
+                sweetId,
+                rating,
+                comment
+        );
     }
 
     // ==========================
-    // PUBLIC: GET REVIEWS FOR SWEET
+    // PUBLIC: GET REVIEWS FOR SWEET (DTO)
     // ==========================
     @GetMapping("/{sweetId}")
-    public List<Review> getReviews(@PathVariable Long sweetId) {
+    public List<ReviewResponse> getReviews(@PathVariable Long sweetId) {
+
         return reviewService.getReviewsForSweet(sweetId);
     }
 
@@ -47,6 +55,7 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteReview(@PathVariable Long reviewId) {
+
         reviewService.deleteReview(reviewId);
     }
 }

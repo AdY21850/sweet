@@ -1,5 +1,6 @@
 package com.example.sweet.service;
 
+import com.example.sweet.dto.ReviewResponse;
 import com.example.sweet.exception.ResourceNotFoundException;
 import com.example.sweet.model.Review;
 import com.example.sweet.model.Sweet;
@@ -37,6 +38,7 @@ public class ReviewService {
             int rating,
             String comment
     ) {
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -55,23 +57,36 @@ public class ReviewService {
     }
 
     // ==========================
-    // GET REVIEWS FOR SWEET
+    // GET REVIEWS FOR SWEET (DTO)
     // ==========================
-    public List<Review> getReviewsForSweet(Long sweetId) {
+    public List<ReviewResponse> getReviewsForSweet(Long sweetId) {
 
         Sweet sweet = sweetRepository.findById(sweetId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sweet not found"));
 
-        return reviewRepository.findBySweetOrderByCreatedAtDesc(sweet);
+        return reviewRepository.findBySweetOrderByCreatedAtDesc(sweet)
+                .stream()
+                .map(review -> new ReviewResponse(
+                        review.getId(),
+                        review.getRating(),
+                        review.getComment(),
+                        review.getUser() != null
+                                ? review.getUser().getFullName()
+                                : "Anonymous",
+                        review.getCreatedAt()
+                ))
+                .toList();
     }
 
     // ==========================
     // DELETE REVIEW (ADMIN)
     // ==========================
     public void deleteReview(Long reviewId) {
+
         if (!reviewRepository.existsById(reviewId)) {
             throw new ResourceNotFoundException("Review not found");
         }
+
         reviewRepository.deleteById(reviewId);
     }
 }
