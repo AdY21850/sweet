@@ -73,6 +73,9 @@ public class ReviewService {
                         review.getUser() != null
                                 ? review.getUser().getFullName()
                                 : "Anonymous",
+                        review.getUser() != null
+                                ? review.getUser().getProfileImageUrl()   // 👈 THIS WAS MISSING
+                                : null,
                         review.getCreatedAt()
                 ))
                 .toList();
