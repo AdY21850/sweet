@@ -1,7 +1,10 @@
 package com.example.sweet.controller;
 
+import com.example.sweet.dto.CartResponse;
+import com.example.sweet.mapper.CartMapper;
 import com.example.sweet.model.Cart;
 import com.example.sweet.service.CartService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -19,46 +22,53 @@ public class CartController {
 
     // ✅ Get current user's cart
     @GetMapping
-    public Cart getCart(Authentication authentication) {
-        String email = authentication.getName();
-        return cartService.getUserCart(email);
+    public CartResponse getCart(Authentication authentication) {
+        Cart cart = cartService.getUserCart(authentication.getName());
+        return CartMapper.toResponse(cart);
     }
 
-    // ✅ Add sweet to cart
+    // ✅ Add sweet to cart (NOBODY RETURNED)
     @PostMapping("/add/{sweetId}")
-    public Cart addToCart(
+    public ResponseEntity<Void> addToCart(
             Authentication authentication,
             @PathVariable Long sweetId
     ) {
-        String email = authentication.getName();
-        return cartService.addToCart(email, sweetId);
+        cartService.addToCart(authentication.getName(), sweetId);
+        return ResponseEntity.ok().build();
     }
 
     // ✅ Update item quantity
     @PutMapping("/update/{itemId}")
-    public Cart updateQuantity(
+    public CartResponse updateQuantity(
             Authentication authentication,
             @PathVariable Long itemId,
             @RequestParam int quantity
     ) {
-        String email = authentication.getName();
-        return cartService.updateQuantity(email, itemId, quantity);
+        Cart cart = cartService.updateQuantity(
+                authentication.getName(),
+                itemId,
+                quantity
+        );
+        return CartMapper.toResponse(cart);
     }
 
     // ✅ Remove item from cart
     @DeleteMapping("/remove/{itemId}")
-    public Cart removeItem(
+    public CartResponse removeItem(
             Authentication authentication,
             @PathVariable Long itemId
     ) {
-        String email = authentication.getName();
-        return cartService.removeItem(email, itemId);
+        Cart cart = cartService.removeItem(
+                authentication.getName(),
+                itemId
+        );
+        return CartMapper.toResponse(cart);
     }
 
     // ✅ Clear entire cart
     @DeleteMapping("/clear")
-    public void clearCart(Authentication authentication) {
-        String email = authentication.getName();
-        cartService.clearCart(email);
+    public ResponseEntity<Void> clearCart(Authentication authentication) {
+        cartService.clearCart(authentication.getName());
+        return ResponseEntity.ok().build();
     }
 }
