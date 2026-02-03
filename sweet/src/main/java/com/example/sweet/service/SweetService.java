@@ -34,6 +34,11 @@ public class SweetService {
         return sweetRepository.save(sweet);
     }
 
+    public List<Sweet> getSweetsByCategory(String category) {
+        return sweetRepository.findByCategoryIgnoreCase(category);
+    }
+
+
     public Sweet purchaseSweet(Long sweetId) {
 
         Sweet sweet = sweetRepository.findById(sweetId)

@@ -34,4 +34,13 @@ public class SweetController {
     ) {
         return popularSweetService.getPopularSweets(limit);
     }
+
+    // ✅ Sweets by Category (USED BY CategoriesList)
+    @GetMapping("/by-category")
+    public List<Sweet> getSweetsByCategory(
+            @RequestParam String category
+    ) {
+        return sweetService.getSweetsByCategory(category);
+    }
+
 }
