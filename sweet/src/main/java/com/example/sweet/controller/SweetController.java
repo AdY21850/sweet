@@ -22,12 +22,17 @@ public class SweetController {
         this.popularSweetService = popularSweetService;
     }
 
-    // ================= EXISTING ENDPOINTS (UNCHANGED) =================
-    // (Your existing methods stay exactly as they were)
+    // =====================================================
+    // ✅ ADMIN — GET ALL SWEETS (THIS WAS MISSING)
+    // =====================================================
+    @GetMapping
+    public List<Sweet> getAllSweets() {
+        return sweetService.getAllSweets();
+    }
 
-    // ================= NEW ENDPOINT =================
-
-    // ✅ Popular Sweets for Home Screen
+    // =====================================================
+    // USER — POPULAR SWEETS
+    // =====================================================
     @GetMapping("/popular")
     public List<Sweet> getPopularSweets(
             @RequestParam(defaultValue = "10") int limit
@@ -35,12 +40,13 @@ public class SweetController {
         return popularSweetService.getPopularSweets(limit);
     }
 
-    // ✅ Sweets by Category (USED BY CategoriesList)
+    // =====================================================
+    // USER — SWEETS BY CATEGORY
+    // =====================================================
     @GetMapping("/by-category")
     public List<Sweet> getSweetsByCategory(
             @RequestParam String category
     ) {
         return sweetService.getSweetsByCategory(category);
     }
-
 }
