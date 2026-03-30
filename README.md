@@ -45,6 +45,7 @@ Spring Security
 Spring Data JPA (Hibernate)
 JWT (JSON Web Tokens)
 Maven
+
 📁 Project Structure
 com.example.sweet
 │
@@ -56,6 +57,8 @@ com.example.sweet
 ├── config          → Security & application configuration
 ├── util            → JWT & helper utilities
 └── exception       → Global exception handling
+
+
 🔐 Authentication & Security
 JWT Flow
 User logs in with credentials
@@ -69,6 +72,8 @@ Stateless authentication (no sessions)
 Password encryption
 Protected API routes
 Role-based access control (if extended)
+
+
 📡 API Design
 Follows REST conventions
 Uses proper HTTP methods (GET, POST, PUT, DELETE)
@@ -79,6 +84,8 @@ Example Response
   "message": "Data fetched successfully",
   "data": {}
 }
+
+
 🧩 Core Modules
 🔹 Authentication Module
 User login
