@@ -105,19 +105,3 @@ Prevents leakage of internal server details
 Stateless architecture (easy horizontal scaling)
 Layered design allows independent scaling
 Database abstraction via JPA
-Ready for containerization (Docker/Kubernetes)
-🧪 How to Run Locally
-# Clone the repository
-git clone <your-repo-url>
-
-# Navigate to backend folder
-cd backend
-
-# Run the application
-mvn spring-boot:run
-🧠 What This Project Demonstrates
-Strong understanding of backend fundamentals
-Real-world authentication implementation
-Clean and maintainable architecture
-API design best practices
-Ability to build production-ready systems
